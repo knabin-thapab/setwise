@@ -1,0 +1,10 @@
+{
+  "description": "Free 1099 quarterly tax calculator for freelancers. Estimate federal tax in seconds — no signup required. Updated for the 2026 tax year.",
+  "robots": {
+    "index": true
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
