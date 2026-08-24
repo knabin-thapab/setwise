@@ -1,21 +1,40 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import ResponsiveTable from "../components/ResponsiveTable";
+import Breadcrumbs from "../components/Breadcrumbs";
+import RelatedTools, { TOOL_SETS } from "../components/RelatedTools";
 import { US_STATES } from "../lib/stateTax";
 import { FilingStatus, calculate, formatMoney } from "../lib/tax";
+import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
 
 export default function ProfitMargin() {
-  useEffect(() => {
-    document.title =
-      "Freelance Profit Margin, Markup & Client Pricing Calculator (2026) | Setwise";
-    let __metaDesc = document.querySelector('meta[name="description"]');
-    if (!__metaDesc) {
-      __metaDesc = document.createElement("meta");
-      __metaDesc.setAttribute("name", "description");
-      document.head.appendChild(__metaDesc);
-    }
-    __metaDesc.setAttribute("content", "Find your real freelance take-home pay after taxes and expenses, your true hourly rate, and the client rate you need to charge to hit your income goal.");
-  }, []);
+  usePageMeta({
+    title: "Freelance Profit Margin, Markup & Client Pricing Calculator (2026) | Setwise",
+    description: "Find your real freelance take-home pay after taxes and expenses, your true hourly rate, and the client rate you need to charge to hit your income goal.",
+    path: "/profit-margin-calculator",
+  });
+
+  const schema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Setwise Freelance Profit Margin & Pricing Calculator",
+      url: "https://tnabin.com.np/profit-margin-calculator",
+      applicationCategory: "FinanceApplication",
+      operatingSystem: "Any",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description:
+        "Calculate freelance take-home pay after taxes and business overhead, convert markup to margin, and generate client rate cards.",
+    }),
+    []
+  );
+
+  useStructuredData(schema);
 
   // Main Mode: Real Take-Home vs Target Take-Home vs Markup Converter vs Rate Card
   const [activeTab, setActiveTab] = useState<"takehome" | "reverse" | "markup" | "ratecard">("takehome");
@@ -168,6 +187,14 @@ Generated via Setwise.io
 
   return (
     <main className="mx-auto max-w-[1240px] px-3.5 py-6 sm:px-6 sm:py-10 lg:px-8 w-full overflow-x-hidden min-w-0">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Calculators", href: "/#calculator" },
+          { label: "Profit Margin & Pricing", href: "/profit-margin-calculator" },
+        ]}
+      />
+
       {/* ─── Hero Header ─── */}
       <div className="mb-6 sm:mb-8 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-[#cbd6cf] bg-white px-3.5 py-1 text-[11px] font-extrabold tracking-wider text-[#11716d] mb-3 shadow-xs">
@@ -984,6 +1011,8 @@ Generated via Setwise.io
           </Link>
         </div>
       </section>
+
+      <RelatedTools tools={TOOL_SETS.profitMargin} />
     </main>
   );
 }

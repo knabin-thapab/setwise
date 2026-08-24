@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { BLOG_POSTS } from "../lib/blogData";
 import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
+import Breadcrumbs from "../components/Breadcrumbs";
 import ResponsiveTable from "../components/ResponsiveTable";
 
 export default function BlogPost() {
@@ -13,10 +15,43 @@ export default function BlogPost() {
   const [tocOpen, setTocOpen] = useState(false);
   const [tableViews, setTableViews] = useState<Record<number, "card" | "table">>({});
 
-  usePageMeta(
-    post ? `${post.title} | Setwise` : "Post not found | Setwise",
-    post ? post.summary : "This blog post could not be found."
-  );
+  usePageMeta({
+    title: post ? `${post.title} | Setwise` : "Post not found | Setwise",
+    description: post ? post.summary : "This blog post could not be found.",
+    path: post ? `/blog/${post.slug}` : "/blog",
+    ogType: "article",
+  });
+
+  const articleSchema = useMemo(() => {
+    if (!post) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: post.title,
+      description: post.summary,
+      author: {
+        "@type": "Organization",
+        name: "Setwise",
+        url: "https://tnabin.com.np",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Setwise",
+        url: "https://tnabin.com.np",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://tnabin.com.np/logo.svg",
+        },
+      },
+      datePublished: post.date,
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": `https://tnabin.com.np/blog/${post.slug}`,
+      },
+    };
+  }, [post]);
+
+  useStructuredData(articleSchema);
 
   // Reading progress tracker
   useEffect(() => {
@@ -103,6 +138,16 @@ export default function BlogPost() {
       </div>
 
       <main className="mx-auto max-w-[860px] px-3.5 py-6 sm:px-6 sm:py-12 lg:px-8 w-full overflow-x-hidden">
+        {post && (
+          <Breadcrumbs
+            items={[
+              { label: "Home", href: "/" },
+              { label: "Blog", href: "/blog" },
+              { label: post.title, href: `/blog/${post.slug}` },
+            ]}
+          />
+        )}
+
         {/* ─── Top Navigation & Action Bar ─── */}
         <div className="border-b border-[#cbd6cf]/60 pb-3.5 mb-6 flex items-center justify-between gap-3">
           <Link

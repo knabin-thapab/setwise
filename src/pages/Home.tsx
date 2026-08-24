@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FilingStatus, TAX_YEAR, calculate, formatMoney } from "../lib/tax";
 import { US_STATES } from "../lib/stateTax";
 import { daysUntil, getNextDeadline } from "../lib/deadlines";
+import { usePageMeta } from "../lib/usePageMeta";
 import SocialProof from "../components/SocialProof";
 import Testimonials from "../components/Testimonials";
 import NewsletterSignup from "../components/NewsletterSignup";
@@ -110,6 +111,12 @@ const freelanceTools = [
 ];
 
 export default function Home() {
+  usePageMeta({
+    title: "Free 1099 Quarterly Tax Calculator (2026) | Setwise",
+    description: "Free 1099 quarterly tax calculator for freelancers. Estimate federal and state tax in seconds — no signup required. Updated for the 2026 tax year.",
+    path: "/",
+  });
+
   const [income, setIncome] = useState("85000");
   const [status, setStatus] = useState<FilingStatus>("single");
   const [stateCode, setStateCode] = useState("CA");

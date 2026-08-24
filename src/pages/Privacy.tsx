@@ -2,10 +2,11 @@ import SimplePage from "../components/SimplePage";
 import { usePageMeta } from "../lib/usePageMeta";
 
 export default function Privacy() {
-  usePageMeta(
-    "Privacy Policy | Setwise",
-    "How Setwise handles your data: what we collect, what we don't, and how our browser-based tax calculators keep your numbers off our servers."
-  );
+  usePageMeta({
+    title: "Privacy Policy | Setwise",
+    description: "How Setwise handles your data: what we collect, what we don't, and how our browser-based tax calculators keep your numbers off our servers.",
+    path: "/privacy-policy",
+  });
   return (
     <SimplePage eyebrow="LEGAL & COMPLIANCE" title="Privacy Policy">
       <p className="text-xs font-semibold text-[#5c7a74]">Last updated: August 2026</p>

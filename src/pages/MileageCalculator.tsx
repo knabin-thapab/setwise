@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import ResponsiveTable from "../components/ResponsiveTable";
+import Breadcrumbs from "../components/Breadcrumbs";
+import RelatedTools, { TOOL_SETS } from "../components/RelatedTools";
 import { US_STATES } from "../lib/stateTax";
 import { FilingStatus, calculate, formatMoney } from "../lib/tax";
+import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
 import {
   MILEAGE_CONSTANTS,
   IRS_YEAR_RATES,
@@ -17,17 +21,32 @@ import {
 const STORAGE_KEY = "setwise_mileage_trips_v2";
 
 export default function MileageCalculator() {
-  useEffect(() => {
-    document.title =
-      "2026 IRS Mileage Deduction & Tax Savings Calculator ($0.725/mi) | Setwise";
-    let __metaDesc = document.querySelector('meta[name="description"]');
-    if (!__metaDesc) {
-      __metaDesc = document.createElement("meta");
-      __metaDesc.setAttribute("name", "description");
-      document.head.appendChild(__metaDesc);
-    }
-    __metaDesc.setAttribute("content", "Calculate your 2026 IRS business mileage deduction at $0.725/mile. Free calculator plus an audit-proof trip log for freelancers and gig drivers.");
-  }, []);
+  usePageMeta({
+    title: "2026 IRS Mileage Deduction & Tax Savings Calculator ($0.725/mi) | Setwise",
+    description: "Calculate your 2026 IRS business mileage deduction at $0.725/mile. Free calculator plus an audit-proof trip log for freelancers and gig drivers.",
+    path: "/mileage-calculator",
+  });
+
+  const schema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Setwise IRS Mileage Deduction Calculator",
+      url: "https://tnabin.com.np/mileage-calculator",
+      applicationCategory: "FinanceApplication",
+      operatingSystem: "Any",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description:
+        "Calculate your official 2026 IRS business mileage deduction ($0.725/mi), compare standard rate vs actual expenses, and log business trips.",
+    }),
+    []
+  );
+
+  useStructuredData(schema);
 
   // Main Mode: Standard Calculator vs Actual vs Audit Log
   const [activeTab, setActiveTab] = useState<"standard" | "comparison" | "log">("standard");
@@ -249,6 +268,14 @@ export default function MileageCalculator() {
 
   return (
     <main className="mx-auto max-w-[1240px] px-3 py-6 sm:px-6 sm:py-10 lg:px-8 w-full overflow-x-hidden min-w-0">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Calculators", href: "/#calculator" },
+          { label: "Mileage Deduction Calculator", href: "/mileage-calculator" },
+        ]}
+      />
+
       {/* ─── Hero Header ─── */}
       <div className="mb-6 sm:mb-8 text-center max-w-full">
         <div className="inline-flex flex-wrap items-center justify-center gap-1.5 rounded-full border border-[#cbd6cf] bg-white px-3 py-1 text-[10px] sm:text-[11px] font-extrabold tracking-wider text-[#11716d] mb-3 shadow-xs max-w-full text-center">
@@ -1202,6 +1229,8 @@ export default function MileageCalculator() {
           </div>
         </div>
       </section>
+
+      <RelatedTools tools={TOOL_SETS.mileage} />
     </main>
   );
 }

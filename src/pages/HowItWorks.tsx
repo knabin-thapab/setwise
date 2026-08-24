@@ -1,8 +1,50 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { getNextDeadline } from "../lib/deadlines";
+import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 export default function HowItWorks() {
+  usePageMeta({
+    title: "How Estimated Taxes Work for Freelancers (2026 Complete Guide) | Setwise",
+    description: "A complete 2026 guide to how IRS quarterly estimated taxes work for freelancers: self-employment tax, income tax, safe-harbor rules, deadlines, and penalties explained.",
+    path: "/how-estimated-taxes-work",
+    ogType: "article",
+  });
+
+  const schema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: "How Estimated Taxes Work for Freelancers (2026 Complete Guide)",
+      description:
+        "A complete 2026 guide to how IRS quarterly estimated taxes work for freelancers: self-employment tax, income tax, safe-harbor rules, deadlines, and penalties explained.",
+      author: {
+        "@type": "Organization",
+        name: "Setwise",
+        url: "https://tnabin.com.np",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "Setwise",
+        url: "https://tnabin.com.np",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://tnabin.com.np/logo.svg",
+        },
+      },
+      datePublished: "2026-01-15",
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": "https://tnabin.com.np/how-estimated-taxes-work",
+      },
+    }),
+    []
+  );
+
+  useStructuredData(schema);
+
   const [activeSection, setActiveSection] = useState<string>("pillars");
   const [copied, setCopied] = useState(false);
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({
@@ -11,17 +53,6 @@ export default function HowItWorks() {
   });
 
   const nextDeadline = getNextDeadline();
-
-  useEffect(() => {
-    document.title = "How Estimated Taxes Work for Freelancers (2026 Complete Guide) | Setwise";
-    let __metaDesc = document.querySelector('meta[name="description"]');
-    if (!__metaDesc) {
-      __metaDesc = document.createElement("meta");
-      __metaDesc.setAttribute("name", "description");
-      document.head.appendChild(__metaDesc);
-    }
-    __metaDesc.setAttribute("content", "A complete 2026 guide to how IRS quarterly estimated taxes work for freelancers: self-employment tax, income tax, safe-harbor rules, deadlines, and penalties explained.");
-  }, []);
 
   // Update active section on scroll
   useEffect(() => {
@@ -202,6 +233,13 @@ export default function HowItWorks() {
 
   return (
     <main className="mx-auto max-w-[920px] px-3.5 py-6 sm:px-6 sm:py-12 lg:px-8 w-full overflow-x-hidden">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "How Estimated Taxes Work", href: "/how-estimated-taxes-work" },
+        ]}
+      />
+
       {/* ─── Guide Header ─── */}
       <div className="border-b border-[#cbd6cf]/70 pb-6 mb-6 sm:mb-8">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">

@@ -1,20 +1,39 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import Breadcrumbs from "../components/Breadcrumbs";
+import RelatedTools, { TOOL_SETS } from "../components/RelatedTools";
 import { US_STATES, calculateStateTax } from "../lib/stateTax";
 import { FilingStatus, TAX, calculate, formatMoney, incomeTax } from "../lib/tax";
+import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
 
 export default function W2Vs1099Comparison() {
-  useEffect(() => {
-    document.title =
-      "1099 vs. W-2 Salary & Take-Home Pay Comparison Calculator | Setwise";
-    let __metaDesc = document.querySelector('meta[name="description"]');
-    if (!__metaDesc) {
-      __metaDesc = document.createElement("meta");
-      __metaDesc.setAttribute("name", "description");
-      document.head.appendChild(__metaDesc);
-    }
-    __metaDesc.setAttribute("content", "Compare real take-home pay between a 1099 freelance rate and a W-2 salary offer, and find the breakeven contractor rate that matches a given salary.");
-  }, []);
+  usePageMeta({
+    title: "1099 vs. W-2 Salary & Take-Home Pay Comparison Calculator | Setwise",
+    description: "Compare real take-home pay between a 1099 freelance rate and a W-2 salary offer, and find the breakeven contractor rate that matches a given salary.",
+    path: "/1099-vs-w2-calculator",
+  });
+
+  const schema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Setwise 1099 vs W-2 Comparison Calculator",
+      url: "https://tnabin.com.np/1099-vs-w2-calculator",
+      applicationCategory: "FinanceApplication",
+      operatingSystem: "Any",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description:
+        "Compare real after-tax take-home pay between 1099 freelance contracts and W-2 employment, including benefits and breakeven rates.",
+    }),
+    []
+  );
+
+  useStructuredData(schema);
 
   // 1099 input mode
   const [contractMode, setContractMode] = useState<"annual" | "hourly">("annual");
@@ -166,6 +185,14 @@ export default function W2Vs1099Comparison() {
 
   return (
     <main className="mx-auto w-full max-w-[1240px] px-3.5 py-6 sm:px-6 sm:py-10 lg:px-8">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Calculators", href: "/#calculator" },
+          { label: "1099 vs. W-2 Comparison", href: "/1099-vs-w2-calculator" },
+        ]}
+      />
+
       {/* ─── Hero Header ─── */}
       <div className="mb-6 sm:mb-10 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-[#cbd6cf] bg-white px-3 py-1 text-[11px] font-extrabold tracking-wider text-[#11716d] mb-2 shadow-xs">
@@ -702,6 +729,8 @@ export default function W2Vs1099Comparison() {
           </Link>
         </div>
       </section>
+
+      <RelatedTools tools={TOOL_SETS.w2vs1099} />
     </main>
   );
 }

@@ -1,23 +1,46 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { BLOG_POSTS, BlogPost } from "../lib/blogData";
+import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 export default function Blog() {
+  usePageMeta({
+    title: "Freelancer Tax & Finance Guides & Blog | Setwise",
+    description: "Free guides on 1099 quarterly taxes, self-employment tax, mileage deductions, retirement plans, and S-Corp savings for US freelancers and independent contractors.",
+    path: "/blog",
+  });
+
+  const blogSchema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      name: "Setwise Freelancer Tax & Finance Guides",
+      description: "Free guides on 1099 quarterly taxes, self-employment tax, mileage deductions, retirement plans, and S-Corp savings.",
+      url: "https://tnabin.com.np/blog",
+      publisher: {
+        "@type": "Organization",
+        name: "Setwise",
+        url: "https://tnabin.com.np",
+      },
+      blogPost: BLOG_POSTS.map((p) => ({
+        "@type": "BlogPosting",
+        headline: p.title,
+        description: p.summary,
+        url: `https://tnabin.com.np/blog/${p.slug}`,
+        datePublished: p.date,
+      })),
+    }),
+    []
+  );
+
+  useStructuredData(blogSchema);
+
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const categoryScrollRef = useRef<HTMLDivElement>(null);
   const [canScrollCategoriesRight, setCanScrollCategoriesRight] = useState(false);
-
-  useEffect(() => {
-    document.title = "Freelancer Tax & Finance Guides & Blog | Setwise";
-    let __metaDesc = document.querySelector('meta[name="description"]');
-    if (!__metaDesc) {
-      __metaDesc = document.createElement("meta");
-      __metaDesc.setAttribute("name", "description");
-      document.head.appendChild(__metaDesc);
-    }
-    __metaDesc.setAttribute("content", "Free guides on 1099 quarterly taxes, self-employment tax, mileage deductions, retirement plans, and S-Corp savings for US freelancers and independent contractors.");
-  }, []);
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(BLOG_POSTS.map((p) => p.category)));
@@ -60,6 +83,13 @@ export default function Blog() {
 
   return (
     <main className="mx-auto max-w-[1100px] px-3.5 py-6 sm:px-6 sm:py-12 lg:px-8 w-full overflow-x-hidden">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Blog", href: "/blog" },
+        ]}
+      />
+
       {/* ─── Header ─── */}
       <div className="border-b border-[#cbd6cf]/70 pb-5 sm:pb-6 mb-6 sm:mb-8">
         <div className="flex flex-wrap items-center gap-2">

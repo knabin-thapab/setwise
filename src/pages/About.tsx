@@ -2,10 +2,11 @@ import SimplePage from "../components/SimplePage";
 import { usePageMeta } from "../lib/usePageMeta";
 
 export default function About() {
-  usePageMeta(
-    "About Setwise | Free Freelancer Tax Tools",
-    "Setwise builds free, browser-based tax and money tools for US freelancers and independent contractors — no signup, no data collection."
-  );
+  usePageMeta({
+    title: "About Setwise | Free Freelancer Tax Tools",
+    description: "Setwise builds free, browser-based tax and money tools for US freelancers and independent contractors — no signup, no data collection.",
+    path: "/about",
+  });
   return (
     <SimplePage eyebrow="ABOUT" title="Why we built this">
       <p>

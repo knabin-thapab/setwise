@@ -1,25 +1,44 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import ResponsiveTable from "../components/ResponsiveTable";
+import Breadcrumbs from "../components/Breadcrumbs";
+import RelatedTools, { TOOL_SETS } from "../components/RelatedTools";
 import { US_STATES } from "../lib/stateTax";
 import { FilingStatus, calculate, formatMoney } from "../lib/tax";
+import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
 import {
   RETIREMENT_CONSTANTS,
   calculateRetirementLimits,
 } from "../lib/retirementConstants";
 
 export default function RetirementCalculator() {
-  useEffect(() => {
-    document.title =
-      "Self-Employed Retirement Calculator (SEP-IRA vs. Solo 401k 2026) | Setwise";
-    let __metaDesc = document.querySelector('meta[name="description"]');
-    if (!__metaDesc) {
-      __metaDesc = document.createElement("meta");
-      __metaDesc.setAttribute("name", "description");
-      document.head.appendChild(__metaDesc);
-    }
-    __metaDesc.setAttribute("content", "Compare 2026 SEP-IRA and Solo 401(k) contribution limits for the self-employed and estimate how much a contribution could reduce this year's tax bill.");
-  }, []);
+  usePageMeta({
+    title: "Self-Employed Retirement Calculator (SEP-IRA vs. Solo 401k 2026) | Setwise",
+    description: "Compare 2026 SEP-IRA and Solo 401(k) contribution limits for the self-employed and estimate how much a contribution could reduce this year's tax bill.",
+    path: "/retirement-calculator",
+  });
+
+  const schema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Setwise Self-Employed Retirement Calculator",
+      url: "https://tnabin.com.np/retirement-calculator",
+      applicationCategory: "FinanceApplication",
+      operatingSystem: "Any",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description:
+        "Compare 2026 SEP-IRA vs Solo 401(k) contribution limits and calculate tax savings for freelancers and sole proprietors.",
+    }),
+    []
+  );
+
+  useStructuredData(schema);
 
   const [netProfitInput, setNetProfitInput] = useState("100000");
   const [isOver50, setIsOver50] = useState(false);
@@ -65,6 +84,14 @@ export default function RetirementCalculator() {
 
   return (
     <main className="mx-auto max-w-[1240px] px-3.5 py-6 sm:px-6 sm:py-10 lg:px-8 w-full overflow-x-hidden min-w-0">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Calculators", href: "/#calculator" },
+          { label: "Retirement Calculator", href: "/retirement-calculator" },
+        ]}
+      />
+
       {/* ─── Hero Header ─── */}
       <div className="mb-6 sm:mb-10 text-center">
         <div className="inline-flex items-center gap-1.5 rounded-full border border-[#cbd6cf] bg-white px-2.5 py-1 text-[10px] sm:text-[11px] font-extrabold tracking-wider text-[#11716d] mb-2 shadow-xs">
@@ -566,6 +593,8 @@ export default function RetirementCalculator() {
           </table>
         </ResponsiveTable>
       </section>
+
+      <RelatedTools tools={TOOL_SETS.retirement} />
     </main>
   );
 }

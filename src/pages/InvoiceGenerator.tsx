@@ -1,5 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
+import Breadcrumbs from "../components/Breadcrumbs";
+import RelatedTools, { TOOL_SETS } from "../components/RelatedTools";
+import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
 
 interface LineItem {
   id: string;
@@ -9,16 +13,32 @@ interface LineItem {
 }
 
 export default function InvoiceGenerator() {
-  useEffect(() => {
-    document.title = "Free Freelance Invoice Generator & Tax Escrow | Setwise";
-    let __metaDesc = document.querySelector('meta[name="description"]');
-    if (!__metaDesc) {
-      __metaDesc = document.createElement("meta");
-      __metaDesc.setAttribute("name", "description");
-      document.head.appendChild(__metaDesc);
-    }
-    __metaDesc.setAttribute("content", "Create free, professional freelance invoices in your browser with built-in tax set-aside guidance. No signup, no watermark, download as PDF instantly.");
-  }, []);
+  usePageMeta({
+    title: "Free Freelance Invoice Generator & Tax Escrow | Setwise",
+    description: "Create free, professional freelance invoices in your browser with built-in tax set-aside guidance. No signup, no watermark, download as PDF instantly.",
+    path: "/invoice-generator",
+  });
+
+  const schema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Setwise Freelance Invoice Generator",
+      url: "https://tnabin.com.np/invoice-generator",
+      applicationCategory: "BusinessApplication",
+      operatingSystem: "Any",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description:
+        "Free browser-based invoice generator with automated quarterly tax set-aside calculations and instant PDF export.",
+    }),
+    []
+  );
+
+  useStructuredData(schema);
 
   const [activeMobileTab, setActiveMobileTab] = useState<"edit" | "preview">("edit");
   const [businessName, setBusinessName] = useState("Acme Studio");
@@ -87,6 +107,16 @@ export default function InvoiceGenerator() {
 
   return (
     <main className="mx-auto w-full max-w-[1300px] px-3.5 py-6 sm:px-6 sm:py-10 lg:px-8 pb-24 sm:pb-12">
+      <div className="no-print">
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Calculators", href: "/#calculator" },
+            { label: "Invoice Generator", href: "/invoice-generator" },
+          ]}
+        />
+      </div>
+
       {/* Top Banner */}
       <div className="no-print mb-5 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#cbd7cf] pb-5">
         <div>
@@ -601,6 +631,10 @@ export default function InvoiceGenerator() {
         >
           Check Profit Margin →
         </Link>
+      </div>
+
+      <div className="no-print">
+        <RelatedTools tools={TOOL_SETS.invoice} />
       </div>
     </main>
   );

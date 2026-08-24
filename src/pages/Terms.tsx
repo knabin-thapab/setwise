@@ -2,10 +2,11 @@ import SimplePage from "../components/SimplePage";
 import { usePageMeta } from "../lib/usePageMeta";
 
 export default function Terms() {
-  usePageMeta(
-    "Terms of Service | Setwise",
-    "The terms governing use of Setwise's free tax and money calculators for freelancers, including our no-warranty and not-tax-advice disclaimers."
-  );
+  usePageMeta({
+    title: "Terms of Service | Setwise",
+    description: "The terms governing use of Setwise's free tax and money calculators for freelancers, including our no-warranty and not-tax-advice disclaimers.",
+    path: "/terms-of-service",
+  });
   return (
     <SimplePage eyebrow="LEGAL" title="Terms of Service">
       <p>Last updated: August 2026</p>

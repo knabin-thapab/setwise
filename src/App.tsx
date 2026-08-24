@@ -17,6 +17,7 @@ import RetirementCalculator from "./pages/RetirementCalculator";
 import SCorpCalculator from "./pages/SCorpCalculator";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/1099-vs-w2-calculator" element={<W2Vs1099Comparison />} />
         <Route path="/retirement-calculator" element={<RetirementCalculator />} />
         <Route path="/s-corp-calculator" element={<SCorpCalculator />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Layout>
   );

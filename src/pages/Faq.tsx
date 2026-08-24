@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 const faqs: [string, string][] = [
   [
@@ -20,7 +22,7 @@ const faqs: [string, string][] = [
   ],
   [
     "Are the four payments always equal?",
-    "This tool divides your estimated annual federal tax into four simple installments. Your income may be uneven, and IRS due dates do not cover identical calendar periods. If your earnings fluctuate sharply, the annualized income installment method can be more accurate.",
+    "This tool divides your estimated annual federal and state tax into four simple installments. Your income may be uneven, and IRS due dates do not cover identical calendar periods. If your earnings fluctuate sharply, the annualized income installment method can be more accurate.",
   ],
   [
     "What is the safe-harbor rule?",
@@ -28,32 +30,33 @@ const faqs: [string, string][] = [
   ],
   [
     "Does this include state income tax?",
-    "No. This first version estimates federal income tax and self-employment tax only. State and local rules can add a meaningful amount, especially where you live or work across state lines. Set aside additional cash for state obligations if they apply to you.",
+    "Yes! Setwise includes built-in state income tax calculations for all 50 US states and Washington D.C., including the 9 states with 0% income tax, flat-rate states, and progressive bracket schedules.",
   ],
   [
     "Where do I make an estimated tax payment?",
-    "The IRS offers Direct Pay and the Electronic Federal Tax Payment System for individual estimated tax payments. Keep the confirmation for your records and select the correct tax year and payment type. Visit IRS.gov for the official payment options.",
+    "The IRS offers Direct Pay and the Electronic Federal Tax Payment System (EFTPS) for individual estimated tax payments. For state payments, visit your state's Department of Revenue website. Keep payment confirmations for your records.",
   ],
   [
     "What happens if I miss a quarterly deadline?",
     "The IRS can charge an underpayment penalty calculated roughly like interest on the amount that was late, from the due date until you pay it. Paying late is still better than not paying at all — send the payment as soon as you can rather than waiting for the next quarter.",
   ],
   [
-    "Is this calculator accurate for every state?",
-    "The calculator currently estimates federal tax only. State income tax rules vary widely — some states have no income tax at all, others have their own brackets and deadlines. A state-specific add-on is planned for a future update.",
+    "Is this calculator updated for the 2026 tax year?",
+    "Yes. All standard deductions, Social Security wage base caps ($184,500 for 2026), federal tax brackets, and state tax rules are updated for the 2026 tax year.",
   ],
 ];
 
 export default function Faq() {
-  usePageMeta(
-    "Frequently Asked Questions — 1099 Taxes | Setwise",
-    "Answers to common questions about quarterly estimated taxes, self-employment tax, the safe-harbor rule, and W-2 side income for US freelancers."
-  );
+  usePageMeta({
+    title: "Frequently Asked Questions — 1099 Taxes | Setwise",
+    description: "Answers to common questions about quarterly estimated taxes, self-employment tax, state taxes, the safe-harbor rule, and W-2 side income for US freelancers.",
+    path: "/faq",
+  });
 
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
-  useEffect(() => {
-    const schema = {
+  const schema = useMemo(
+    () => ({
       "@context": "https://schema.org",
       "@type": "FAQPage",
       mainEntity: faqs.map(([q, a]) => ({
@@ -61,18 +64,21 @@ export default function Faq() {
         name: q,
         acceptedAnswer: { "@type": "Answer", text: a },
       })),
-    };
-    const script = document.createElement("script");
-    script.type = "application/ld+json";
-    script.text = JSON.stringify(schema);
-    document.head.appendChild(script);
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
+    }),
+    []
+  );
+
+  useStructuredData(schema);
 
   return (
-    <main className="mx-auto w-full max-w-[900px] px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
+    <main className="mx-auto w-full max-w-[900px] px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "FAQ", href: "/faq" },
+        ]}
+      />
+
       <p className="eyebrow">COMMON QUESTIONS</p>
       <h1 className="mt-2.5 sm:mt-3 text-3xl sm:text-4xl lg:text-5xl font-black tracking-[-0.06em] text-[#102a2d]">
         Frequently asked questions

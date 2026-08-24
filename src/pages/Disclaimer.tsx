@@ -2,10 +2,11 @@ import SimplePage from "../components/SimplePage";
 import { usePageMeta } from "../lib/usePageMeta";
 
 export default function Disclaimer() {
-  usePageMeta(
-    "Disclaimer | Setwise",
-    "Setwise's calculators provide estimates for informational purposes only and are not tax, legal, or financial advice. Read the full disclaimer before relying on any figure."
-  );
+  usePageMeta({
+    title: "Disclaimer | Setwise",
+    description: "Setwise's calculators provide estimates for informational purposes only and are not tax, legal, or financial advice. Read the full disclaimer before relying on any figure.",
+    path: "/disclaimer",
+  });
   return (
     <SimplePage eyebrow="LEGAL" title="Disclaimer">
       <p>

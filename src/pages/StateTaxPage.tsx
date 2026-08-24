@@ -1,9 +1,13 @@
 import { FormEvent, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { STATE_TAX_RULES, US_STATES } from "../lib/stateTax";
+import { getStateContent } from "../lib/stateContent";
 import { FilingStatus, TAX_YEAR, calculate, formatMoney } from "../lib/tax";
 import { getNextDeadline } from "../lib/deadlines";
 import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
+import Breadcrumbs from "../components/Breadcrumbs";
+import RelatedTools, { TOOL_SETS } from "../components/RelatedTools";
 import AdBanner from "../components/AdBanner";
 
 export default function StateTaxPage() {
@@ -39,21 +43,56 @@ export default function StateTaxPage() {
     };
   }, [stateSlug]);
 
-  usePageMeta(
-    `${selectedState.name} 1099 Tax Calculator (${TAX_YEAR}) | Setwise`,
-    selectedState.type === "none"
-      ? `${selectedState.name} has no state income tax. Calculate your federal self-employment and quarterly estimated tax as a freelancer in ${selectedState.name} — free, no signup.`
-      : `Estimate your ${TAX_YEAR} federal and ${selectedState.name} state quarterly taxes as a freelancer or 1099 contractor. ${selectedState.notes ?? ""} Free calculator, no signup required.`
+  const pagePath = stateSlug ? `/state-tax/${stateSlug}` : "/state-tax";
+
+  usePageMeta({
+    title: stateSlug
+      ? `${selectedState.name} 1099 Tax Calculator (${TAX_YEAR}) | Setwise`
+      : `50-State 1099 Tax Calculator (${TAX_YEAR}) | Setwise`,
+    description: stateSlug
+      ? selectedState.type === "none"
+        ? `${selectedState.name} has no state income tax. Calculate your federal self-employment and quarterly estimated tax as a freelancer in ${selectedState.name} — free, no signup.`
+        : `Estimate your ${TAX_YEAR} federal and ${selectedState.name} state quarterly taxes as a freelancer or 1099 contractor. ${selectedState.notes ?? ""} Free calculator, no signup required.`
+      : `Calculate federal and state quarterly taxes for all 50 US states. Free 1099 tax calculator for freelancers — updated for ${TAX_YEAR}.`,
+    path: pagePath,
+  });
+
+  const stateInfo = useMemo(() => {
+    return getStateContent(
+      selectedState.code,
+      selectedState.name,
+      selectedState.type === "none"
+    );
+  }, [selectedState]);
+
+  const schema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: `${selectedState.name} 1099 Tax Calculator`,
+      url: `https://tnabin.com.np${pagePath}`,
+      applicationCategory: "FinanceApplication",
+      operatingSystem: "Any",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description: `Free ${selectedState.name} quarterly estimated tax calculator for freelancers and 1099 contractors. Updated for ${TAX_YEAR}.`,
+    }),
+    [selectedState, pagePath]
   );
+
+  useStructuredData(schema);
 
   const [income, setIncome] = useState("90000");
   const [status, setStatus] = useState<FilingStatus>("single");
   const [hasW2, setHasW2] = useState(false);
   const [w2, setW2] = useState("0");
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [results, setResults] = useState(() =>
     calculate(90000, 0, "single", selectedState.code)
   );
-
 
   const numbers = useMemo(
     () =>
@@ -88,12 +127,27 @@ export default function StateTaxPage() {
 
   return (
     <main className="mx-auto w-full max-w-[1240px] min-w-0 px-4 py-8 sm:py-12 lg:px-8">
+      {/* Breadcrumbs Navigation */}
+      <Breadcrumbs
+        items={
+          stateSlug
+            ? [
+                { label: "Home", href: "/" },
+                { label: "State Taxes", href: "/state-tax" },
+                { label: `${selectedState.name} 1099 Tax`, href: `/state-tax/${stateSlug}` },
+              ]
+            : [
+                { label: "Home", href: "/" },
+                { label: "State Taxes", href: "/state-tax" },
+              ]
+        }
+      />
+
       {/* State Switcher Bar with Infinite Smooth Marquee */}
       <div className="mb-6 sm:mb-8 border-b border-[#cbd7cf] pb-4 sm:pb-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
           <div className="flex items-center gap-2">
             <span className="eyebrow">POPULAR STATES:</span>
-
           </div>
           {/* Quick Select Dropdown for all 50 states */}
           <div className="flex items-center gap-2">
@@ -123,7 +177,6 @@ export default function StateTaxPage() {
         {/* Infinite Marquee Section with Fade Mask */}
         <div className="relative flex w-full overflow-hidden mask-edges group py-2">
           <div className="animate-marquee hover:cursor-grab active:cursor-grabbing">
-            {/* Render 4 loops for seamless infinite scrolling on all screens */}
             {[0, 1, 2, 3].map((arrIdx) => (
               <div key={arrIdx} className="flex gap-2.5 pr-2.5">
                 {topStates.map((s, i) => {
@@ -150,7 +203,6 @@ export default function StateTaxPage() {
         </div>
       </div>
 
-
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.1fr] lg:gap-12">
         {/* Left Column: Context & State Details */}
         <div>
@@ -162,8 +214,7 @@ export default function StateTaxPage() {
             {selectedState.name} 1099 Tax Calculator
           </h1>
           <p className="mt-3 sm:mt-4 text-base sm:text-lg leading-7 sm:leading-8 text-[#4b6563]">
-            Calculate federal self-employment, federal income, and{" "}
-            <strong>{selectedState.name}</strong> state estimated quarterly taxes in one clean estimate.
+            {stateInfo.summary}
           </p>
 
           <div className="mt-6 sm:mt-8 rounded-2xl border border-[#cbd6cf] bg-[#fbfcf8] p-5 sm:p-6">
@@ -283,9 +334,128 @@ export default function StateTaxPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1240px] px-4 py-4 sm:px-6 lg:px-8">
+      {/* ─── State-Specific Educational Guide Section ─── */}
+      <section className="mt-12 sm:mt-16 border-t border-[#cbd7cf] pt-8 sm:pt-12">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12">
+          <div>
+            <p className="eyebrow">STATE TAX GUIDE</p>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-black tracking-[-0.04em] text-[#102a2d]">
+              How Taxes Work for Freelancers in {selectedState.name}
+            </h2>
+            <p className="mt-4 text-sm sm:text-base leading-7 text-[#4b6563]">
+              {stateInfo.systemDescription}
+            </p>
+
+            {stateInfo.localTaxNote && (
+              <div className="mt-4 rounded-xl border border-[#d2e0d7] bg-[#f2f7f4] p-4 text-xs sm:text-sm text-[#2a4d49] leading-relaxed">
+                <strong>Local & Municipal Tax Note:</strong> {stateInfo.localTaxNote}
+              </div>
+            )}
+
+            <div className="mt-6 space-y-2.5">
+              <h3 className="text-sm font-extrabold text-[#102a2d]">
+                Key Filing Tips for {selectedState.name} Contractors:
+              </h3>
+              <ul className="space-y-2 text-xs sm:text-sm text-[#4b6563]">
+                {stateInfo.freelancerTips.map((tip, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-[#11716d] font-black">✓</span>
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* State FAQ Accordion */}
+          <div>
+            <p className="eyebrow">{selectedState.name.toUpperCase()} FAQS</p>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-black tracking-[-0.04em] text-[#102a2d]">
+              Frequently Asked Questions
+            </h2>
+            <div className="mt-6 faq-list">
+              {stateInfo.faqs.map((faq, i) => (
+                <div className={`faq-item ${openFaq === i ? "open" : ""}`} key={faq.question}>
+                  <button
+                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    className="faq-trigger !py-3"
+                    aria-expanded={openFaq === i}
+                  >
+                    <span className="text-xs sm:text-sm font-bold">{faq.question}</span>
+                    <span className="faq-icon-wrap !h-6 !w-6" aria-hidden="true">
+                      <svg
+                        className="h-3.5 w-3.5 transition-transform duration-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </span>
+                  </button>
+                  <div className="faq-collapse">
+                    <div className="faq-collapse-inner">
+                      <div className="faq-content text-xs sm:text-sm leading-relaxed">
+                        <p>{faq.answer}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 50-State Tax Directory Grid ─── */}
+      <section className="mt-12 sm:mt-16 border-t border-[#cbd7cf] pt-8 sm:pt-12">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+          <div>
+            <p className="eyebrow">50-STATE DIRECTORY</p>
+            <h2 className="text-xl sm:text-2xl font-black tracking-[-0.04em] text-[#102a2d]">
+              Calculate State Tax in Other States
+            </h2>
+          </div>
+          <span className="text-xs text-[#6a8e87]">Updated for 2026 tax year</span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 text-xs">
+          {US_STATES.map((s) => {
+            const slug = s.name.toLowerCase().replace(/\s+/g, "-");
+            const isCurrent = s.code === selectedState.code;
+            return (
+              <Link
+                key={s.code}
+                to={`/state-tax/${slug}`}
+                className={`p-2.5 rounded-xl border text-left transition-all ${
+                  isCurrent
+                    ? "bg-[#11716d] text-white border-[#11716d] font-black shadow-xs"
+                    : "bg-[#fbfcf8] border-[#cbd6cf] text-[#2a4d49] hover:border-[#11716d] hover:bg-white"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold truncate">{s.name}</span>
+                  {s.isNoTax && (
+                    <span className={`text-[9px] font-bold px-1 rounded ${
+                      isCurrent ? "bg-white/20 text-white" : "bg-[#dcf0ea] text-[#11716d]"
+                    }`}>
+                      0%
+                    </span>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Related Tools */}
+      <RelatedTools tools={TOOL_SETS.stateTax} />
+
+      <div className="mx-auto max-w-[1240px] px-4 py-4 sm:px-6 lg:px-8 mt-8">
         <AdBanner format="leaderboard" />
       </div>
     </main>
   );
 }
+

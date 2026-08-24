@@ -1,20 +1,39 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import Breadcrumbs from "../components/Breadcrumbs";
+import RelatedTools, { TOOL_SETS } from "../components/RelatedTools";
 import { US_STATES, calculateStateTax } from "../lib/stateTax";
 import { FilingStatus, TAX, calculate, formatMoney, incomeTax } from "../lib/tax";
+import { usePageMeta } from "../lib/usePageMeta";
+import { useStructuredData } from "../lib/useStructuredData";
 
 export default function SCorpCalculator() {
-  useEffect(() => {
-    document.title =
-      "2026 S-Corp Tax Savings & Reasonable Salary Calculator | Setwise";
-    let __metaDesc = document.querySelector('meta[name="description"]');
-    if (!__metaDesc) {
-      __metaDesc = document.createElement("meta");
-      __metaDesc.setAttribute("name", "description");
-      document.head.appendChild(__metaDesc);
-    }
-    __metaDesc.setAttribute("content", "Estimate whether electing S-Corp tax treatment could lower your self-employment tax bill, based on your net profit and a reasonable-salary figure you provide.");
-  }, []);
+  usePageMeta({
+    title: "2026 S-Corp Tax Savings & Reasonable Salary Calculator | Setwise",
+    description: "Estimate whether electing S-Corp tax treatment could lower your self-employment tax bill, based on your net profit and a reasonable-salary figure you provide.",
+    path: "/s-corp-calculator",
+  });
+
+  const schema = useMemo(
+    () => ({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Setwise S-Corp Tax Savings Calculator",
+      url: "https://tnabin.com.np/s-corp-calculator",
+      applicationCategory: "FinanceApplication",
+      operatingSystem: "Any",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description:
+        "Estimate Form 2553 S-Corp tax savings, compare self-employment tax reduction against overhead costs, and find reasonable salary splits.",
+    }),
+    []
+  );
+
+  useStructuredData(schema);
 
   const [netProfitInput, setNetProfitInput] = useState("140000");
   const [salaryInput, setSalaryInput] = useState("70000");
@@ -121,6 +140,14 @@ export default function SCorpCalculator() {
 
   return (
     <main className="mx-auto w-full max-w-[1240px] px-3.5 py-6 sm:px-6 sm:py-10 lg:px-8">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Calculators", href: "/#calculator" },
+          { label: "S-Corp Calculator", href: "/s-corp-calculator" },
+        ]}
+      />
+
       {/* ─── Hero Header ─── */}
       <div className="mb-6 sm:mb-10 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-[#cbd6cf] bg-white px-3 py-1 text-[11px] font-extrabold tracking-wider text-[#11716d] mb-2 shadow-xs">
@@ -507,6 +534,8 @@ export default function SCorpCalculator() {
           </div>
         </div>
       </section>
+
+      <RelatedTools tools={TOOL_SETS.scorp} />
     </main>
   );
 }
